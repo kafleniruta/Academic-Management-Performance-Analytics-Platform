@@ -1,229 +1,304 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Nexus Dashboard | Performance Hub</title>
+    <!-- Bootstrap 5 + Icons + Google Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-@section('title', 'Admin Dashboard')
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fe 0%, #eef2ff 100%);
+            padding: 2rem 0;
+        }
 
-@section('content')
-<div class="max-w-7xl mx-auto">
-    <div class="px-4 py-6 sm:px-6 lg:px-8">
-        <h1 class="text-2xl font-semibold text-gray-900">Admin Dashboard</h1>
-        
-        <!-- Statistics Cards -->
-        <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Total Users</dt>
-                                <dd class="text-lg font-medium text-gray-900">{{ $stats['total_users'] }}</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        /* custom scroll */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
 
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Total Courses</dt>
-                                <dd class="text-lg font-medium text-gray-900">{{ $stats['total_courses'] }}</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
 
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Total Marks</dt>
-                                <dd class="text-lg font-medium text-gray-900">{{ $stats['total_marks'] }}</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        /* header */
+        .page-header h1 {
+            font-weight: 800;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #1e293b, #2d3a5e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
 
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Total Roles</dt>
-                                <dd class="text-lg font-medium text-gray-900">{{ $stats['total_roles'] }}</dd>
-                            </dl>
-                        </div>
-                    </div>
+        /* modern stat cards */
+        .stat-card {
+            border: none;
+            border-radius: 2rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.2);
+        }
+        .card-primary { background: linear-gradient(145deg, #4f46e5, #7c3aed); }
+        .card-success { background: linear-gradient(145deg, #059669, #10b981); }
+        .card-danger { background: linear-gradient(145deg, #dc2626, #ef4444); }
+        .stat-card .card-body {
+            padding: 1.5rem;
+            position: relative;
+        }
+        .stat-icon {
+            position: absolute;
+            right: 1.2rem;
+            bottom: 1rem;
+            font-size: 3rem;
+            opacity: 0.2;
+            color: white;
+        }
+        .stat-card .card-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        .stat-number {
+            font-size: 2.6rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        /* glass cards for charts & table */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s;
+        }
+        .card-header-custom {
+            background: transparent;
+            border-bottom: 2px solid #f1f5f9;
+            padding: 1.2rem 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .card-header-custom i { color: #3b82f6; font-size: 1.3rem; }
+
+        /* table styling */
+        .rank-table thead th {
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .rank-table tbody tr {
+            transition: background 0.2s;
+        }
+        .rank-table tbody tr:hover {
+            background: #fefce8;
+        }
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #eef2ff;
+            border-radius: 40px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        .avg-score-badge {
+            background: #e6f7ec;
+            color: #15803d;
+            padding: 0.3rem 0.9rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container { padding: 0 1rem; }
+            .stat-number { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <!-- Back button row - left aligned, outside the header for clear separation -->
+    <div class="d-flex justify-content-start mb-3">
+        <a href="{{ url('/admin/dashboard') }}" class="btn btn-outline-secondary rounded-pill shadow-sm px-4 py-2">
+            <i class="fas fa-arrow-left me-2"></i> Back to Admin Dashboard
+        </a>
+    </div>
+
+    <!-- Header -->
+    <div class="page-header d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h1><i class="fas fa-chalkboard-user me-2 text-primary"></i> Academic Insight</h1>
+            <p class="text-muted mt-1">Real‑time performance overview</p>
+        </div>
+        <div class="bg-white px-3 py-2 rounded-4 shadow-sm">
+            <i class="far fa-calendar-alt me-1"></i> {{ date('F j, Y') }}
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="stat-card card-primary text-white">
+                <div class="card-body">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <h6 class="card-title"><i class="fas fa-graduation-cap me-1"></i> Total Students</h6>
+                    <div class="stat-number">{{ $totalStudents }}</div>
+                    <p class="small opacity-75 mb-0 mt-2">Active enrollments</p>
                 </div>
             </div>
         </div>
-
-        <!-- Additional Statistics -->
-        <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Total Students</dt>
-                                <dd class="text-lg font-medium text-gray-900">{{ $stats['total_students'] }}</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Total Teachers</dt>
-                                <dd class="text-lg font-medium text-gray-900">{{ $stats['total_teachers'] }}</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-6 w-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Total Admins</dt>
-                                <dd class="text-lg font-medium text-gray-900">{{ $stats['total_admins'] }}</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-6 w-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Average Marks</dt>
-                                <dd class="text-lg font-medium text-gray-900">{{ number_format($stats['average_marks'], 2) }}</dd>
-                            </dl>
-                        </div>
-                    </div>
+        <div class="col-md-4">
+            <div class="stat-card card-success text-white">
+                <div class="card-body">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <h6 class="card-title"><i class="fas fa-star-of-life me-1"></i> Pass (≥40)</h6>
+                    <div class="stat-number">{{ $pass }}</div>
+                    <p class="small opacity-75 mb-0 mt-2">Successful records</p>
                 </div>
             </div>
         </div>
-
-        <!-- Recent Activity -->
-        <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <!-- Recent Users -->
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="px-4 py-5 sm:px-6">
-                    <h3 class="text-lg font-medium text-gray-900">Recent Users</h3>
-                    <div class="mt-4 space-y-3">
-                        @forelse($recentUsers as $user)
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                                        <span class="text-xs font-medium text-gray-700">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
-                                    </div>
-                                    <div class="ml-3">
-                                        <p class="text-sm font-medium text-gray-900">{{ $user->name }}</p>
-                                        <p class="text-xs text-gray-500">{{ $user->role->name }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <p class="text-sm text-gray-500">No recent users</p>
-                        @endforelse
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Courses -->
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="px-4 py-5 sm:px-6">
-                    <h3 class="text-lg font-medium text-gray-900">Recent Courses</h3>
-                    <div class="mt-4 space-y-3">
-                        @forelse($recentCourses as $course)
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ $course->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ $course->teacher->name ?? 'No teacher' }}</p>
-                                </div>
-                            </div>
-                        @empty
-                            <p class="text-sm text-gray-500">No recent courses</p>
-                        @endforelse
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Marks -->
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-                <div class="px-4 py-5 sm:px-6">
-                    <h3 class="text-lg font-medium text-gray-900">Recent Marks</h3>
-                    <div class="mt-4 space-y-3">
-                        @forelse($recentMarks as $mark)
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ $mark->student->user->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ $mark->course->name }}: {{ $mark->marks }}</p>
-                                </div>
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $mark->marks >= 50 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                    {{ $mark->grade }}
-                                </span>
-                            </div>
-                        @empty
-                            <p class="text-sm text-gray-500">No recent marks</p>
-                        @endforelse
-                    </div>
+        <div class="col-md-4">
+            <div class="stat-card card-danger text-white">
+                <div class="card-body">
+                    <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <h6 class="card-title"><i class="fas fa-chart-line me-1"></i> Fail (<40)</h6>
+                    <div class="stat-number">{{ $fail }}</div>
+                    <p class="small opacity-75 mb-0 mt-2">Needs improvement</p>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-7">
+            <div class="glass-card h-100">
+                <div class="card-header-custom">
+                    <i class="fas fa-chart-simple"></i> 📊 Course Average Marks
+                    <span class="ms-auto badge bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill">per subject</span>
+                </div>
+                <div class="p-3">
+                    <canvas id="avgMarksChart" style="max-height: 300px; width: 100%;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="glass-card h-100">
+                <div class="card-header-custom">
+                    <i class="fas fa-chart-pie"></i> 🎯 Pass / Fail Distribution
+                </div>
+                <div class="p-3 text-center">
+                    <canvas id="passFailChart" style="max-height: 240px; width: 100%;"></canvas>
+                    <div class="mt-3 d-flex justify-content-center gap-4">
+                        <div><span class="badge bg-success px-3 py-2">✔ Pass {{ $passPercent }}%</span></div>
+                        <div><span class="badge bg-danger px-3 py-2">✖ Fail {{ $failPercent }}%</span></div>
+                    </div>
+                    <hr class="my-2">
+                    <div class="small text-secondary">Based on {{ $pass + $fail }} graded submissions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 5 Students -->
+    <div class="glass-card">
+        <div class="card-header-custom">
+            <i class="fas fa-trophy text-warning"></i> 🏆 Top 5 Students
+            <span class="ms-auto small text-muted">by average marks</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table rank-table mb-0">
+                <thead>
+                    <tr><th>Rank</th><th>Student Name</th><th>Average Marks</th></tr>
+                </thead>
+                <tbody>
+                    @forelse($topStudents as $index => $student)
+                    <tr>
+                        <td><span class="rank-badge">#{{ $index+1 }}</span> {!! $index==0 ? '🥇' : ($index==1 ? '🥈' : ($index==2 ? '🥉' : '⭐')) !!}</td>
+                        <td class="fw-semibold"><i class="fas fa-user-graduate me-2 text-primary"></i>{{ $student->student_name }}</td>
+                        <td><span class="avg-score-badge">{{ number_format($student->avg_marks, 2) }}%</span></td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="3" class="text-center py-4 text-muted">No data available</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="text-center text-muted small mt-4 pt-2 border-top">
+        <i class="fas fa-chalkboard me-1"></i> Performance threshold: 40 marks = passing grade
+    </div>
 </div>
-@endsection
+
+<script>
+    // Course average chart
+    const avgLabels = @json($avgMarks->pluck('course_name'));
+    const avgValues = @json($avgMarks->pluck('average'));
+    new Chart(document.getElementById('avgMarksChart'), {
+        type: 'bar',
+        data: {
+            labels: avgLabels,
+            datasets: [{
+                label: 'Average Marks',
+                data: avgValues,
+                backgroundColor: '#3b82f6',
+                borderRadius: 10,
+                barPercentage: 0.65
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: 'Marks (out of 100)' } } },
+            plugins: { tooltip: { callbacks: { label: (ctx) => 📊 ${ctx.raw.toFixed(2)} points } } }
+        }
+    });
+
+    // Pass/Fail pie chart
+    new Chart(document.getElementById('passFailChart'), {
+        type: 'pie',
+        data: {
+            labels: ['Pass', 'Fail'],
+            datasets: [{
+                data: [{{ $passPercent }}, {{ $failPercent }}],
+                backgroundColor: ['#2ecc71', '#e74c3c'],
+                borderWidth: 2,
+                borderColor: 'white'
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+</script>
+</body>
+</html>

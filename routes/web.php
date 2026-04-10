@@ -1,50 +1,69 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\StudentController;
-use App\Http\Controllers\CourseController;
-use App\Http\Controllers\MarkController;
-
-// Redirect root to login or dashboard
+// Add this root route
 Route::get('/', function () {
-    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
+    return redirect('/login');
 });
 
-// Authentication routes
-Route::middleware('guest')->group(function () {
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-    
-    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store']);
+use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\TeacherController;
+use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\EnrollmentController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+
+use App\Http\Controllers\Teacher\TeacherDashboardController as TeacherDashboard;
+use App\Http\Controllers\Teacher\TeacherMarkController as TeacherMark;
+use App\Http\Controllers\Teacher\TeacherProfileController as TeacherProfile;
+
+use App\Http\Controllers\Student\StudentDashboardController as StudentDashboard;
+use App\Http\Controllers\Student\StudentMarkController as StudentMark;
+use App\Http\Controllers\Student\StudentProfileController as StudentProfile;
+
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
+
+// Dashboard redirect after login
+Route::get('/dashboard', function () {
+    $user = Auth::user();
+    if ($user->role === 'admin') return redirect()->route('admin.dashboard');
+    if ($user->role === 'teacher') return redirect()->route('teacher.dashboard');
+    if ($user->role === 'student') return redirect()->route('student.dashboard');
+    return redirect('/');
+})->middleware('auth')->name('dashboard');
+
+// Admin routes (only admin can access)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard'); // ✅
+    Route::resource('students', StudentController::class);
+    Route::resource('teachers', TeacherController::class);
+    Route::resource('courses', CourseController::class);
+    Route::resource('enrollments', EnrollmentController::class);
 });
 
-Route::middleware('auth')->group(function () {
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-    
-    // Dashboard
-    Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
-    
-    // Admin routes
-    Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-        Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
-        Route::get('dashboard', [HomeController::class, 'adminDashboard'])->name('dashboard');
-    });
-    
-    // Student routes
-    Route::resource('students', \App\Http\Controllers\Web\StudentController::class)->names('students');
-    Route::get('students/my/courses', [\App\Http\Controllers\Web\StudentController::class, 'myCourses'])->name('students.mycourses');
-    Route::get('students/my/marks', [\App\Http\Controllers\Web\StudentController::class, 'myMarks'])->name('students.mymarks');
-    
-    // Course routes
-    Route::resource('courses', \App\Http\Controllers\Web\CourseController::class)->names('courses');
-    Route::get('courses/available-teachers', [\App\Http\Controllers\Web\CourseController::class, 'getAvailableTeachers'])->name('courses.teachers');
-    
-    // Marks routes
-    Route::resource('marks', \App\Http\Controllers\Web\MarkController::class)->names('marks');
-    Route::get('marks/statistics', [\App\Http\Controllers\Web\MarkController::class, 'statistics'])->name('marks.statistics');
+// ── Teacher routes ────────────────────────────────────────────
+Route::middleware(['auth', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+    Route::get('/dashboard', [TeacherDashboard::class, 'index'])->name('dashboard');
+ 
+    // Marks
+    Route::get('/marks',                  [TeacherMark::class, 'index'])->name('marks.index');
+    Route::get('/marks/{enrollment}/edit',[TeacherMark::class, 'edit'])->name('marks.edit');
+    Route::put('/marks/{enrollment}',     [TeacherMark::class, 'update'])->name('marks.update');
+ 
+    // Profile 
+    Route::get('/profile',                    [TeacherProfile::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/contact',            [TeacherProfile::class, 'updateContact'])->name('profile.updateContact');
+    Route::put('/profile/password',           [TeacherProfile::class, 'updatePassword'])->name('profile.updatePassword');
 });
+ 
+// ── Student routes ────────────────────────────────────────────
+Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->group(function () {
+    Route::get('/dashboard', [StudentDashboard::class, 'index'])->name('dashboard');
+    Route::get('/marks',     [StudentMark::class, 'index'])->name('marks');
+ 
+    // Profile 
+    Route::get('/profile',           [StudentProfile::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/contact',   [StudentProfile::class, 'updateContact'])->name('profile.updateContact');
+    Route::put('/profile/password',  [StudentProfile::class, 'updatePassword'])->name('profile.updatePassword');
+});
+ 
+require __DIR__.'/auth.php';
